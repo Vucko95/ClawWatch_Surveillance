@@ -1,0 +1,4 @@
+backend_kubeconfig
+routers/__pycache*
+settings/__pycache*
+kubeconfigs/*
