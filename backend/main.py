@@ -2,7 +2,6 @@ from fastapi import FastAPI
 from routers import kube
 from fastapi.middleware.cors import CORSMiddleware
 from settings.config import *
-
 app = FastAPI()
 app.add_middleware(
     CORSMiddleware,
