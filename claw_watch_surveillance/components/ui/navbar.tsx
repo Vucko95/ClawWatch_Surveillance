@@ -13,7 +13,7 @@ export const Navbar = () => {
                 <Link href="/">
                     <div className="flex items-center">
                         {/* <LogoSVG /> */}
-                        <p>Claw Kube Surveillence</p>
+                        <p>Claw Kube Surveillance</p>
                     </div>
                     
                 </Link>

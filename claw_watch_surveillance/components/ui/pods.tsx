@@ -34,7 +34,7 @@ export const Pods = () => {
         }
       };
   
-      fetchData();
+      // fetchData();
     }, []); 
   
     const invoices = [
