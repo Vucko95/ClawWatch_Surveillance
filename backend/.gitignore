@@ -2,4 +2,4 @@ backend_kubeconfig
 routers/__pycache*
 settings/__pycache*
 kubeconfigs/*
-__pycache__/
+__pycache__/*
