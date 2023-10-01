@@ -52,3 +52,45 @@ export const fetchDriverStandings = async () => {
       console.error("An error occurred while uploading the file:", error);
     }
   };
+
+  export const fetchBaseK8SData = async (value : any) => {
+    try {
+      const response = await fetch(`http://localhost:8000/kubeconfig/${value}`);
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+    } else {
+        console.error("Failed to fetch uploaded files.");
+      }
+    } catch (error) {
+      console.error("An error occurred while fetching uploaded files:", error);
+    }
+  };
+
+
+  export const fetchK8sNamespaces = async (value : any) => {
+    try {
+      const response = await fetch(`http://localhost:8000/kubeconfig/ns/${value}`);
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+    } else {
+        console.error("Failed to fetch uploaded files.");
+      }
+    } catch (error) {
+      console.error("An error occurred while fetching uploaded files:", error);
+    }
+  };
+  export const fetchPodsforNamespace = async (namespace : any, harcoded_kubeconfig : any) => {
+    try {
+      const response = await fetch(`http://localhost:8000/kubeconfig/${harcoded_kubeconfig}/${namespace}/pods`);
+      if (response.ok) {
+        const data = await response.json();
+        return data;
+    } else {
+        console.error("Failed to fetch uploaded files.");
+      }
+    } catch (error) {
+      console.error("An error occurred while fetching uploaded files:", error);
+    }
+  };

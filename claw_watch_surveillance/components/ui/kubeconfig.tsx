@@ -11,6 +11,7 @@ export const KubeConfigs = () => {
 
   const [selectedFile, setSelectedFile] = useState(null);
   const [uploadedFiles, setUploadedFiles] = useState([]);
+  const [selectedValue, setSelectedValue] = useState(""); // State variable to store the selected value
 
 
   useEffect(() => {
@@ -25,6 +26,7 @@ export const KubeConfigs = () => {
 
     fetchData();
   }, []);
+
 
   const onDrop = useCallback((acceptedFiles: any) => {
     const file = acceptedFiles[0];
@@ -42,6 +44,10 @@ export const KubeConfigs = () => {
     await fetchUploadedFiles(); 
   };
   
+  const handleSelectChange = (value : any) => {
+    setSelectedValue(value); // Update the selected value in state
+    console.log('Selected Value:', value);
+  };
   return (
     <div className="z-50 h-[200px]  m-5 flex gap-10 items-center justify-center">
 
@@ -64,29 +70,26 @@ export const KubeConfigs = () => {
         <div className="p-2 flex justify-center items-center flex-col">
         <h3 className="mb-2 text-lg font-semibold">Kubeconfigs List</h3>
 
-     <Select>
-  <SelectTrigger className="w-48 mb-5">
-    <SelectValue placeholder="Select Kubeconfig"  />
-  </SelectTrigger>
-  <SelectContent>
-  {uploadedFiles.map((filename, index) => (
-            <SelectItem key={index} value={filename}>
-              {filename}
-            </SelectItem>
-          ))}
-    {/* <SelectItem value="namespace1">namespace1</SelectItem>
-    <SelectItem value="namespace2">namespace2</SelectItem>
-    <SelectItem value="namespace3">namespace3</SelectItem> */}
-  </SelectContent>
-</Select>
+
+
+
       <div className="gap-2 ">
       {uploadedFiles.map((filename) => (
               <Badge variant="outline">{filename}</Badge>
           ))}
-     {/* <Badge variant="outline">sandbox.yml</Badge> */}
-     {/* <Badge variant="outline">development.yml`1</Badge> */}
       </div>
-
+      <Select onValueChange={handleSelectChange}  >
+  <SelectTrigger className="w-48 mt-5 p-2 font-medium">
+    <SelectValue  placeholder="Select Kubeconfig"  />
+  </SelectTrigger>
+  <SelectContent >
+  {uploadedFiles.map((filename, index) => (
+            <SelectItem  key={index} value={filename}>
+              {filename}
+            </SelectItem>
+          ))}
+  </SelectContent>
+</Select>
      </div>
     </div>
      
