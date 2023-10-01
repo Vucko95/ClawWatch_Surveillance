@@ -4,7 +4,6 @@ from settings.config import *
 from kubernetes import config, client,utils
 from kubernetes.client.rest import ApiException
 from kubernetes.client import CustomObjectsApi   
-import yaml
 from fastapi import UploadFile
 router = APIRouter()
 import os
@@ -52,7 +51,6 @@ async def testo():
     try:
         config.load_kube_config('kubeconfigs/test.yaml')
         # v1 = client.CoreV1Api()
-        # namespaces = v1.list_namespace()
         nodesList=list_nodes()
         numberOfPods=get_total_number_of_pods()
         numOfDep=get_total_number_of_deployments()
@@ -74,10 +72,11 @@ async def testo(value: str):
     try:
         kubeconfig_path = f'kubeconfigs/{value}'
         config.load_kube_config(kubeconfig_path)
-        nodesList = list_nodes()
-        numberOfPods = get_total_number_of_pods()
-        numOfDep = get_total_number_of_deployments()
-        clusterUptime = get_cluster_uptime()
+        nodesList = list_nodes(kubeconfig_path)
+        numberOfPods = get_total_number_of_pods(kubeconfig_path)
+        numOfDep = get_total_number_of_deployments(kubeconfig_path)
+        clusterUptime = get_cluster_uptime(kubeconfig_path)
+        es=list_all_namespaces(kubeconfig_path)
         results =   {
 
             "nodesList": nodesList,
@@ -85,16 +84,47 @@ async def testo(value: str):
             "numOfDep": numOfDep,
             "clusterUptime": clusterUptime 
         }
-            
-        
         return results
+    
     except Exception as e:
         print(f"An error occurred while processing the request: {str(e)}")
         return {"error": "An error occurred while processing the request"}   
 
+@router.get("/kubeconfig/ns/{value}")
+async def testo(value: str):
+    try:
+        kubeconfig_path = f'kubeconfigs/{value}'
+        config.load_kube_config(kubeconfig_path)
+        namespaces=list_all_namespaces(kubeconfig_path)
+        results = namespaces
+        return results
+    
+    except Exception as e:
+        print(f"An error occurred while processing the request: {str(e)}")
+        return {"error": "An error occurred while processing the request"}   
 
+@router.get("/kubeconfig/{kubeconfig_path}/{namespace}/pods")
+def list_pods_in_namespace(namespace, kubeconfig_path):
+    kubeconfig_path = f'kubeconfigs/{kubeconfig_path}'
+    config.load_kube_config(kubeconfig_path)
 
-config.load_kube_config('kubeconfigs/test.yaml')
+    v1 = client.CoreV1Api()
+
+    try:
+        podsList = []
+        pods = v1.list_namespaced_pod(namespace=namespace)
+        for pod in pods.items:
+            pod_info = {
+                "Pod Name": pod.metadata.name,
+                "Namespace": pod.metadata.namespace,
+                "Pod Phase": pod.status.phase
+            }
+            podsList.append(pod_info)
+
+        return podsList
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+# config.load_kube_config('kubeconfigs/test.yaml')
 
 # v1 = client.CoreV1Api()
 # print("Listing pods with their IPs:")
@@ -152,9 +182,23 @@ def get_cluster_resource_usage():
     except ApiException as e:
         print(f"Exception when calling Kubernetes API: {e}")
 
+def list_all_namespaces(kubeconfig_path):
+    config.load_kube_config(kubeconfig_path)
+    v1 = client.CoreV1Api()
 
-def list_nodes():
-        config.load_kube_config('kubeconfigs/test.yaml')
+    try:
+        namespaces_list = []
+        namespaces = v1.list_namespace()
+        for ns in namespaces.items:
+            print(f"Namespace Name: {ns.metadata.name}")
+            namespaces_list.append(ns.metadata.name)
+        return namespaces_list
+    except Exception as e:
+        print(f"An error occurred: {str(e)}")
+
+
+def list_nodes(kubeconfig_path):
+        config.load_kube_config(kubeconfig_path)
 
         api_client = client.ApiClient()
         api_instance = client.CoreV1Api(api_client)
@@ -163,10 +207,10 @@ def list_nodes():
         print(len(node_list.items))
         return (len(node_list.items))
     
-def get_total_number_of_pods():
+def get_total_number_of_pods(kubeconfig_path):
     try:
         # Load Kubernetes configuration from a kubeconfig file
-        config.load_kube_config('kubeconfigs/test.yaml')
+        config.load_kube_config(kubeconfig_path)
 
         # Create a Kubernetes API client
         api_client = client.ApiClient()
@@ -185,10 +229,10 @@ def get_total_number_of_pods():
         print(f"An error occurred: {str(e)}")
         return None
     
-def get_total_number_of_deployments():
+def get_total_number_of_deployments(kubeconfig_path):
     try:
         # Load Kubernetes configuration from a kubeconfig file
-        config.load_kube_config('kubeconfigs/test.yaml')
+        config.load_kube_config(kubeconfig_path)
 
         # Create a Kubernetes API client
         api_client = client.ApiClient()
@@ -209,10 +253,10 @@ def get_total_number_of_deployments():
     
 from datetime import datetime
 
-def get_cluster_uptime():
+def get_cluster_uptime(kubeconfig_path):
     try:
         # Load Kubernetes configuration from a kubeconfig file
-        config.load_kube_config('kubeconfigs/test.yaml')
+        config.load_kube_config(kubeconfig_path)
 
         # Create a Kubernetes API client
         api_client = client.ApiClient()
