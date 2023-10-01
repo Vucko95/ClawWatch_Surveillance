@@ -51,19 +51,49 @@ async def testo():
 async def testo():
     try:
         config.load_kube_config('kubeconfigs/test.yaml')
-        v1 = client.CoreV1Api()
-        namespaces = v1.list_namespace()
-        # create_nginx_pod()
-        # get_cluster_resource_usage()
-        list_nodes()
-        get_total_number_of_pods()
-        get_total_number_of_deployments()
-        get_cluster_uptime()
-        return {"namespaces": [ns.metadata.name for ns in namespaces.items]}
+        # v1 = client.CoreV1Api()
+        # namespaces = v1.list_namespace()
+        nodesList=list_nodes()
+        numberOfPods=get_total_number_of_pods()
+        numOfDep=get_total_number_of_deployments()
+        clusterUptime =get_cluster_uptime()
+        results = {
+            "nodesList": nodesList,
+            "numberOfPods": numberOfPods,
+            "numOfDep": numOfDep,
+            "clusterUptime": clusterUptime
+        }
+        return results
     except Exception as e:
         print(f"An error occurred while processing the request: {str(e)}")
         return {"error": "An error occurred while processing the request"}
-    
+
+
+@router.get("/kubeconfig/{value}")
+async def testo(value: str):
+    try:
+        kubeconfig_path = f'kubeconfigs/{value}'
+        config.load_kube_config(kubeconfig_path)
+        nodesList = list_nodes()
+        numberOfPods = get_total_number_of_pods()
+        numOfDep = get_total_number_of_deployments()
+        clusterUptime = get_cluster_uptime()
+        results =   {
+
+            "nodesList": nodesList,
+            "numberOfPods": numberOfPods,
+            "numOfDep": numOfDep,
+            "clusterUptime": clusterUptime 
+        }
+            
+        
+        return results
+    except Exception as e:
+        print(f"An error occurred while processing the request: {str(e)}")
+        return {"error": "An error occurred while processing the request"}   
+
+
+
 config.load_kube_config('kubeconfigs/test.yaml')
 
 # v1 = client.CoreV1Api()
@@ -131,6 +161,7 @@ def list_nodes():
         # api_response=api_instance.read_namespaced_pod(namespace="default",name="nginx-pod")
         node_list=api_instance.list_node()
         print(len(node_list.items))
+        return (len(node_list.items))
     
 def get_total_number_of_pods():
     try:
